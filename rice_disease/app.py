@@ -6,7 +6,7 @@ from PIL import Image
 
 @st.cache_resource
 def load_trained_model():
-    model = load_model("F:\Rice_leaf_Disease\Disease_dtct.h5")
+    model = load_model(r"F:\\Rice_leaf_Disease\\rice_disease\Disease_dtct.h5")
     return model
 
 model = load_trained_model()

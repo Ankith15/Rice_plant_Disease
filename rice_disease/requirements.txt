@@ -1,8 +1,8 @@
 pandas 
 numpy
-opencv-python
-seaborn 
-numpy
-scikit-learn
+# opencv-python
+# seaborn 
+# numpy
+# scikit-learn
 tensorflow
 streamlit
