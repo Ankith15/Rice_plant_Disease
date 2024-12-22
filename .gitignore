@@ -3,15 +3,14 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-venv
 split_leaf
-.venv
 split_leaf
 train
 test
 validation
 split_leaf/
-venv/
+
+
 # C extensions
 *.so
 
@@ -138,9 +137,12 @@ celerybeat.pid
 
 # Environments
 .env
-.venv
+data
+venv
+aug_data
+
 env/
-venv/
+
 ENV/
 env.bak/
 venv.bak/
