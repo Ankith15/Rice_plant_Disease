@@ -2,6 +2,9 @@ import os
 import requests
 import streamlit as st
 from tensorflow.keras.models import load_model
+from PIL import Image
+from tensorflow.keras.preprocessing import image
+import numpy as np
 
 @st.cache_resource
 def load_trained_model():
@@ -26,34 +29,37 @@ model = load_trained_model()
 class_labels = ["Bacterial_leaf_blight", "Healthy_leaf", "Rice_Blast", "Tungro"]
 
 st.title("Rice Plant Disease Detection")
-st.write("Upload rice plant leaf image")
+st.write("Upload a folder containing rice plant leaf images")
 
-# Upload an image
-upload_file = st.file_uploader("Choose an image from your device", type=['jpg', 'png', 'jpeg', 'bmp'])
+# Upload a folder of images
+upload_folder = st.file_uploader("Choose a folder containing images", type=None, accept_multiple_files=True)
 
-if upload_file is not None:
-    from PIL import Image
-    from tensorflow.keras.preprocessing import image
-    import numpy as np
+if upload_folder:
+    st.write("Uploaded images:")
+    for uploaded_file in upload_folder:
+        try:
+            # Load and display each image
+            image_data = Image.open(uploaded_file)
+            st.image(image_data, caption=f"{uploaded_file.name}", use_column_width=True)
+            
+            # Preprocess the image
+            def preprocess_image(img):
+                img = img.resize((224, 224), Image.Resampling.LANCZOS)
+                img_arr = image.img_to_array(img)
+                img_arr = np.expand_dims(img_arr, axis=0)
+                img_arr = img_arr / 255.0
+                return img_arr
+            
+            processed_image = preprocess_image(image_data)
 
-    # Display the uploaded image
-    image_data = Image.open(upload_file)
-    st.image(image_data, caption="Uploaded Image", use_column_width=True)
+            # Make predictions
+            predictions = model.predict(processed_image)
+            predicted_class = class_labels[np.argmax(predictions)]
+            confidence = np.max(predictions) * 100
 
-    # Preprocess the image
-    def preprocess_image(img):
-        img = img.resize((224, 224), Image.Resampling.LANCZOS)
-        img_arr = image.img_to_array(img)
-        img_arr = np.expand_dims(img_arr, axis=0)
-        img_arr = img_arr / 255.0
-        return img_arr
+            # Display results
+            st.write(f"Predicted class for {uploaded_file.name}: {predicted_class}")
+            st.write(f"Confidence: {confidence:.2f}%")
 
-    processed_image = preprocess_image(image_data)
-
-    # Make predictions
-    predictions = model.predict(processed_image)
-    predicted_class = class_labels[np.argmax(predictions)]
-
-    # Display results
-    st.write(f"Predicted class: {predicted_class}")
-    st.write(f"Confidence: {np.max(predictions) * 100:.2f}%")
+        except Exception as e:
+            st.error(f"Error processing file {uploaded_file.name}: {str(e)}")
